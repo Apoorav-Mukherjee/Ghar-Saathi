@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+/* =================================
+   PROJECT DESIGN SYSTEM
+================================= */
+
+@theme {
+  /* Brand Colors */
+
+  --color-forest: #103D2F;
+  --color-lime: #D6F45B;
+  --color-cream: #F5F4EA;
+
+  /* Additional Colors */
+
+  --color-ink: #101C17;
+  --color-muted: #777D76;
+
+  /* Custom Shadow */
+
+  --shadow-soft: 0 18px 50px rgba(16, 61, 47, 0.10);
+}
+
+/* =================================
+   GLOBAL STYLES
+================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-cream);
+  color: var(--color-ink);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+::selection {
+  background-color: var(--color-lime);
+  color: var(--color-forest);
+}
+
+/* =================================
+   REUSABLE CLASSES
+================================= */
+
+.container-shell {
+  width: min(1160px, calc(100% - 40px));
+  margin-inline: auto;
+}
+
+.eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.section-pad {
+  padding-block: 84px;
+}
+
+/* =================================
+   RESPONSIVE STYLES
+================================= */
+
+@media (max-width: 640px) {
+  .container-shell {
+    width: calc(100% - 28px);
+  }
+
+  .section-pad {
+    padding-block: 56px;
+  }
+}
