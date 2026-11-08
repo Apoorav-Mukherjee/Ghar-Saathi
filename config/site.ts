@@ -1,5 +1,5 @@
 export const siteConfig = {
-  name: "Ghar Saathi",
+  name: "Sahayika",
 
   tagline: "A cleaner home. A happier you.",
 
@@ -8,11 +8,12 @@ export const siteConfig = {
 
   city: "Vrindavan",
 
-  phone: "+91 82720 29490",
+  // phone: "+91 82720 29490",
+  phone: "+91 82658 26307",
 
   whatsapp: "8272029490",
 
-  email: "globalfutureops@gmail.com",
+  email: "servicessahayika@gmail.com",
 
   currency: "INR",
 };

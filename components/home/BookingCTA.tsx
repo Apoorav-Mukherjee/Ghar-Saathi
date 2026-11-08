@@ -63,10 +63,8 @@ export default function BookingCTA() {
 
               </Link>
 
-              <a
-                href={`https://wa.me/${siteConfig.whatsapp}`}
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                href="/contact"
                 className="flex items-center gap-2 rounded-full border border-white/25 px-7 py-4 text-sm font-bold text-white transition hover:bg-white/10"
               >
 
@@ -74,7 +72,7 @@ export default function BookingCTA() {
 
                 Contact Us
 
-              </a>
+              </Link>
 
             </div>
 
