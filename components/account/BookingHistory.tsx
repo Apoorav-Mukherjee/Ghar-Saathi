@@ -116,10 +116,9 @@ export default function BookingHistory() {
             </div>
 
             <span
-              className={`rounded-full px-3 py-1 text-xs font-semibold capitalize ${
-                statusStyles[booking.status] ||
+              className={`rounded-full px-3 py-1 text-xs font-semibold capitalize ${statusStyles[booking.status] ||
                 "bg-gray-100 text-gray-700"
-              }`}
+                }`}
             >
               {booking.status.replace("-", " ")}
             </span>
@@ -140,6 +139,14 @@ export default function BookingHistory() {
           <p className="mt-3 text-sm text-muted">
             {booking.location} · {booking.plan === "one-time" ? "One-time" : "Monthly"}
           </p>
+
+          <Link
+            href={`/account/bookings/${booking.bookingId}`}
+            className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-forest hover:underline"
+          >
+            View booking details
+            <ArrowRight size={16} />
+          </Link>
         </article>
       ))}
     </div>

@@ -5,9 +5,10 @@ import { useState } from "react";
 import { Menu, X, MapPin, ArrowUpRight } from "lucide-react";
 import { siteConfig } from "@/config/site";
 import SignOutButton from "@/components/auth/SignOutButton";
-
+import NotificationBell from "@/components/notifications/NotificationBell";
 type NavbarClientProps = {
   isLoggedIn: boolean;
+  isAdmin: boolean;
 };
 
 const navigationLinks = [
@@ -20,6 +21,7 @@ const navigationLinks = [
 
 export default function NavbarClient({
   isLoggedIn,
+  isAdmin,
 }: NavbarClientProps) {
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -33,7 +35,7 @@ export default function NavbarClient({
         <Link href="/" className="flex items-center gap-2">
 
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-forest text-lg font-black text-lime">
-            G
+            GS
           </div>
 
           <span className="text-lg font-extrabold tracking-tight text-forest">
@@ -82,11 +84,8 @@ export default function NavbarClient({
           </Link>
 
           {isLoggedIn ? (
-            <Link
-              href="/account"
-              className="rounded-full bg-forest px-6 py-3 font-semibold text-white transition hover:bg-[#174D3B]"
-            >
-              My Account
+            <Link href={isAdmin ? "/admin" : "/account"}>
+              {isAdmin ? "Admin Dashboard" : "My Account"}
             </Link>
           ) : (
             <Link
@@ -96,6 +95,7 @@ export default function NavbarClient({
               Sign In
             </Link>
           )}
+          {isLoggedIn && <NotificationBell />}
 
         </div>
 
