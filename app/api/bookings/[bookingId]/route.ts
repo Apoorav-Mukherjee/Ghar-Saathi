@@ -4,6 +4,7 @@ import { z } from "zod";
 import { auth } from "@/auth";
 import { connectDB } from "@/lib/mongodb";
 import Booking from "@/models/Booking";
+import NotificationModel from "@/models/Notification";
 
 type RouteContext = {
   params: Promise<{ bookingId: string }>;
@@ -132,6 +133,24 @@ export async function PATCH(
     };
 
     await existingBooking.save();
+
+    // Notify all authorized admins about the cancellation request.
+    try {
+      await NotificationModel.create({
+        recipientType: "admin",
+        recipientId: null,
+        type: "cancellation-request",
+        title: "New cancellation request",
+        message: `A customer has requested cancellation of booking ${existingBooking.bookingId}. Please review the request.`,
+        link: "/admin",
+        bookingId: existingBooking.bookingId,
+      });
+    } catch (notificationError) {
+      console.error(
+        "Admin cancellation notification failed:",
+        notificationError
+      );
+    }
 
     return NextResponse.json({
       success: true,

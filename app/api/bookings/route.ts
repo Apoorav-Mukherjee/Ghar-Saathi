@@ -7,6 +7,7 @@ import User from "@/models/User";
 
 import { connectDB } from "@/lib/mongodb";
 import Booking from "@/models/Booking";
+import Notification from "@/models/Notification";
 
 const bookingSchema = z.object({
     name: z.string().trim().min(2).max(100),
@@ -132,6 +133,40 @@ export async function POST(request: NextRequest) {
             status: "pending",
             paymentStatus: "unpaid",
         });
+        // Notifications are best-effort.
+        // A notification failure must never cancel a successfully created booking.
+        const notificationResults = await Promise.allSettled([
+            // Customer notification
+            Notification.create({
+                recipientType: "customer",
+                recipientId: customer._id,
+                type: "booking-submitted",
+                title: "Booking request received",
+                message: `Your booking request ${booking.bookingId} has been submitted and is awaiting review.`,
+                link: "/account",
+                bookingId: booking.bookingId,
+            }),
+
+            // Admin notification
+            Notification.create({
+                recipientType: "admin",
+                recipientId: null,
+                type: "new-booking",
+                title: "New booking received",
+                message: `A new ${booking.service} booking (${booking.bookingId}) is awaiting review.`,
+                link: "/admin",
+                bookingId: booking.bookingId,
+            }),
+        ]);
+
+        notificationResults.forEach((result) => {
+            if (result.status === "rejected") {
+                console.error(
+                    "Booking notification creation failed:",
+                    result.reason
+                );
+            }
+        });
 
         return NextResponse.json(
             {
@@ -158,37 +193,37 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET() {
-  try {
-    const session = await auth();
+    try {
+        const session = await auth();
 
-    if (!session?.user?.id) {
-      return NextResponse.json(
-        { success: false, message: "Please sign in first." },
-        { status: 401 }
-      );
+        if (!session?.user?.id) {
+            return NextResponse.json(
+                { success: false, message: "Please sign in first." },
+                { status: 401 }
+            );
+        }
+
+        await connectDB();
+
+        const bookings = await Booking.find({
+            userId: session.user.id,
+        })
+            .select(
+                "bookingId service plan location address preferredDate preferredTime status paymentStatus createdAt"
+            )
+            .sort({ createdAt: -1 })
+            .lean();
+
+        return NextResponse.json({
+            success: true,
+            bookings,
+        });
+    } catch (error) {
+        console.error("Customer bookings error:", error);
+
+        return NextResponse.json(
+            { success: false, message: "Unable to load your bookings." },
+            { status: 500 }
+        );
     }
-
-    await connectDB();
-
-    const bookings = await Booking.find({
-      userId: session.user.id,
-    })
-      .select(
-        "bookingId service plan location address preferredDate preferredTime status paymentStatus createdAt"
-      )
-      .sort({ createdAt: -1 })
-      .lean();
-
-    return NextResponse.json({
-      success: true,
-      bookings,
-    });
-  } catch (error) {
-    console.error("Customer bookings error:", error);
-
-    return NextResponse.json(
-      { success: false, message: "Unable to load your bookings." },
-      { status: 500 }
-    );
-  }
 }

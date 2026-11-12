@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import { getAdminSession } from "@/lib/admin";
 import Booking from "@/models/Booking";
+import Notification from "@/models/Notification";
+import NotificationModel from "@/models/Notification";
 
 const allowedTransitions: Record<string, string[]> = {
   pending: ["confirmed", "cancelled"],
@@ -155,6 +157,68 @@ export async function PATCH(
         },
         { status: 409 }
       );
+    }
+
+    // Notify the customer when their booking is accepted.
+    // Notify the customer whenever their booking status changes.
+    if (updatedBooking.status !== booking.status) {
+      try {
+        const statusNotifications = {
+          pending: {
+            type: "general",
+            title: "Booking pending",
+            message: "Your booking is pending review.",
+          },
+
+          confirmed: {
+            type: "booking-confirmed",
+            title: "Booking confirmed!",
+            message: "Your booking has been confirmed.",
+          },
+
+          assigned: {
+            type: "professional-assigned",
+            title: "Professional assigned!",
+            message: "A service professional has been assigned to your booking.",
+          },
+
+          "in-progress": {
+            type: "service-started",
+            title: "Service started",
+            message: "Your requested service is now in progress.",
+          },
+
+          completed: {
+            type: "service-completed",
+            title: "Service completed!",
+            message: "Your requested service has been completed.",
+          },
+
+          cancelled: {
+            type: "booking-cancelled",
+            title: "Booking cancelled",
+            message: "Your booking has been cancelled.",
+          },
+        };
+
+        const notification = statusNotifications[updatedBooking.status];
+
+        await NotificationModel.create({
+          recipientType: "customer",
+          recipientId: updatedBooking.userId,
+          type: notification.type,
+          title: notification.title,
+          message: `${notification.message} Booking ID: ${updatedBooking.bookingId}`,
+          link: "/account",
+          bookingId: updatedBooking.bookingId,
+        });
+
+      } catch (notificationError) {
+        console.error(
+          "Customer status notification failed:",
+          notificationError
+        );
+      }
     }
 
     return NextResponse.json({

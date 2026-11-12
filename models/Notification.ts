@@ -22,6 +22,7 @@ const notificationSchema = new Schema(
       type: String,
       enum: [
         "new-booking",
+        "booking-submitted",
         "booking-confirmed",
         "professional-assigned",
         "service-started",
